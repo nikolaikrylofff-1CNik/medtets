@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -696,6 +696,12 @@ function exitTest() {
   updateFavCount();
 }
 
+function startTestFromSearch(num) {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').classList.remove('visible');
+  startTest(num);
+}
+
 function restartTest() {
   startTest(lastStartIndex);
 }
@@ -890,7 +896,7 @@ function doSearch(query) {
     const toShow = results.slice(0, 50);
     list.innerHTML = toShow.map(item => {
       const highlighted = highlightText(item.question, query);
-      return `<div class="search-result-item" onclick="startTest(${item.id + 1})">
+      return `<div class="search-result-item" onclick="startTestFromSearch(${item.id + 1})">
         <div class="sr-num">Вопрос №${item.id + 1}</div>
         <div class="sr-text">${highlighted}</div>
       </div>`;
