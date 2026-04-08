@@ -1,0 +1,930 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>МедТест — Тестирование «Сестринское дело»</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --success: #16a34a;
+    --success-bg: #dcfce7;
+    --error: #dc2626;
+    --error-bg: #fee2e2;
+    --warning: #f59e0b;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --star-active: #f59e0b;
+    --star-inactive: #cbd5e1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 16px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  header .subtitle {
+    font-size: 0.85rem;
+    opacity: 0.85;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  /* ===== Стартовый экран ===== */
+  #startScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-top: 40px;
+  }
+
+  #startScreen .welcome-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  #startScreen .welcome-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    color: var(--primary);
+  }
+
+  #startScreen .welcome-card p {
+    color: var(--text-light);
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 24px;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-item .num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .stat-item .label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+  }
+  .btn-outline:hover { background: var(--primary); color: white; }
+
+  .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+  .btn-icon {
+    width: 40px; height: 40px; padding: 0;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid var(--border);
+    color: var(--text-light);
+    font-size: 1.1rem;
+  }
+  .btn-icon:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-icon.active { border-color: var(--star-active); color: var(--star-active); background: #fffbeb; }
+
+  .start-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .start-buttons .btn { flex: 1; min-width: 200px; }
+
+  .search-box {
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 14px 20px 14px 48px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-box input:focus { border-color: var(--primary); }
+
+  .search-box .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 1.2rem;
+  }
+
+  /* ===== Экран теста ===== */
+  #testScreen { display: none; }
+
+  .test-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .test-header .q-counter {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .progress-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), #60a5fa);
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  .question-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: var(--text);
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .option-btn:hover:not(.disabled) {
+    border-color: var(--primary);
+    background: #dbeafe;
+  }
+
+  .option-btn .opt-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+
+  .option-btn .opt-text {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .option-btn.correct {
+    border-color: var(--success);
+    background: var(--success-bg);
+  }
+
+  .option-btn.correct .opt-num {
+    background: var(--success);
+    color: white;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--error);
+    background: var(--error-bg);
+  }
+
+  .option-btn.wrong .opt-num {
+    background: var(--error);
+    color: white;
+  }
+
+  .option-btn.disabled {
+    cursor: default;
+    opacity: 0.75;
+  }
+
+  .option-btn.disabled.correct { opacity: 1; }
+
+  .explanation-box {
+    display: none;
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #f0f9ff;
+    border-left: 4px solid var(--primary);
+  }
+
+  .explanation-box.visible { display: block; }
+
+  .explanation-box .exp-label {
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+
+  .explanation-box .exp-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .nav-buttons .btn { flex: 1; }
+
+  /* ===== Модальное окно перехода к вопросу ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-overlay.visible { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+
+  .modal h3 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .modal input[type="number"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 1.1rem;
+    outline: none;
+    margin-bottom: 16px;
+  }
+
+  .modal input[type="number"]:focus { border-color: var(--primary); }
+
+  .modal-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .modal-buttons .btn { flex: 1; }
+
+  /* ===== Результаты поиска ===== */
+  .search-results {
+    display: none;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 16px;
+  }
+
+  .search-results.visible { display: block; }
+
+  .search-results h3 {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-bottom: 12px;
+  }
+
+  .search-result-item {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  .search-result-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .search-result-item .sr-num {
+    font-size: 0.8rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .search-result-item .sr-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .no-results {
+    text-align: center;
+    color: var(--text-light);
+    padding: 24px;
+  }
+
+  /* ===== Результаты теста ===== */
+  #resultsScreen {
+    display: none;
+    text-align: center;
+    padding-top: 40px;
+  }
+
+  .results-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .results-card .big-score {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 16px 0 8px;
+  }
+
+  .results-card .score-label {
+    color: var(--text-light);
+    margin-bottom: 24px;
+  }
+
+  .results-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 24px;
+  }
+
+  .results-stats .rs-item { text-align: center; }
+  .results-stats .rs-num { font-size: 1.5rem; font-weight: 700; }
+  .results-stats .rs-num.green { color: var(--success); }
+  .results-stats .rs-num.red { color: var(--error); }
+  .results-stats .rs-label { font-size: 0.8rem; color: var(--text-light); }
+
+  .highlight { background: #fef08a; padding: 1px 2px; border-radius: 2px; }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --text-light: #94a3b8;
+      --border: #334155;
+      --star-inactive: #475569;
+      --success-bg: #052e16;
+      --error-bg: #450a0a;
+    }
+    .explanation-box { background: #172554; border-left-color: #60a5fa; }
+    .search-result-item { box-shadow: none; }
+    .search-result-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 12px; }
+    .question-card { padding: 20px; }
+    .stats-row { gap: 20px; }
+    .start-buttons { flex-direction: column; }
+    .start-buttons .btn { min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🩺 МедТест</h1>
+  <div class="subtitle">Сестринское дело — Аккредитация</div>
+</header>
+
+<div class="container">
+
+  <!-- Стартовый экран -->
+  <div id="startScreen">
+    <div class="welcome-card">
+      <h2>Добро пожаловать!</h2>
+      <p>Тестирование по специальности «Сестринское дело» для подготовки к аккредитации</p>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="num" id="totalQuestions">0</div>
+          <div class="label">вопросов</div>
+        </div>
+        <div class="stat-item">
+          <div class="num" id="favCount">0</div>
+          <div class="label">в избранном</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="start-buttons">
+      <button type="button" class="btn btn-primary" onclick="startTest(1)">▶ Начать с начала</button>
+      <button type="button" class="btn btn-outline" onclick="openGotoModal()">🔢 С номера…</button>
+    </div>
+
+    <div class="start-buttons" style="margin-top:4px;">
+      <button type="button" class="btn btn-success" id="btnFavStart" onclick="startFavTest()">⭐ Избранное</button>
+      <button type="button" class="btn btn-outline" onclick="showOnlyFavorites()">📋 Только избранное</button>
+    </div>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Поиск по тексту вопроса…" oninput="handleSearch(this.value)">
+    </div>
+
+    <div class="search-results" id="searchResults">
+      <h3 id="searchTitle">Результаты поиска</h3>
+      <div id="searchList"></div>
+    </div>
+  </div>
+
+  <!-- Экран теста -->
+  <div id="testScreen">
+    <div class="test-header">
+      <button type="button" class="btn-icon" onclick="exitTest()" title="На главную">✕</button>
+      <span class="q-counter" id="qCounter">Вопрос 1 из 100</span>
+      <button type="button" class="btn-icon" id="favBtn" onclick="toggleFavorite()" title="В избранное">☆</button>
+    </div>
+    <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+    <div class="question-card">
+      <div class="question-text" id="questionText"></div>
+      <div class="options-list" id="optionsList"></div>
+      <div class="explanation-box" id="explanationBox">
+        <div class="exp-label">💡 Пояснение</div>
+        <div class="exp-text" id="explanationText"></div>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button type="button" class="btn btn-outline btn-sm" id="prevBtn" onclick="prevQuestion()">← Назад</button>
+      <button type="button" class="btn btn-primary btn-sm" id="nextBtn" onclick="nextQuestion()">Далее →</button>
+    </div>
+  </div>
+
+  <!-- Экран результатов -->
+  <div id="resultsScreen">
+    <div class="results-card">
+      <h2>🎉 Тест завершён!</h2>
+      <div class="big-score" id="resultScore">0%</div>
+      <div class="score-label">правильных ответов</div>
+      <div class="results-stats">
+        <div class="rs-item">
+          <div class="rs-num green" id="resultCorrect">0</div>
+          <div class="rs-label">Верно</div>
+        </div>
+        <div class="rs-item">
+          <div class="rs-num red" id="resultWrong">0</div>
+          <div class="rs-label">Неверно</div>
+        </div>
+      </div>
+      <div class="start-buttons">
+        <button type="button" class="btn btn-primary" onclick="exitTest()">На главную</button>
+        <button type="button" class="btn btn-outline" onclick="restartTest()">Пройти заново</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Модалка перехода к номеру -->
+<div class="modal-overlay" id="gotoModal">
+  <div class="modal">
+    <h3>Перейти к вопросу</h3>
+    <input type="number" id="gotoInput" min="1" placeholder="Номер вопроса" onkeydown="if(event.key==='Enter')goToQuestion()">
+    <div class="modal-buttons">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeGotoModal()">Отмена</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="goToQuestion()">Перейти</button>
+    </div>
+  </div>
+</div>
+
+<script src="questions.json"></script>
+<script>
+let questions = [];
+let currentMode = 'all'; // 'all', 'favorites', 'search'
+let questionSubset = [];
+let currentIndex = 0;
+let answers = {}; // { questionId: selectedOption }
+let favorites = new Set(JSON.parse(localStorage.getItem('medtest_favorites') || '[]'));
+let answeredInSession = {};
+let lastStartIndex = 1;
+
+function init() {
+  questions = window.QUESTIONS_DATA || [];
+  console.log('Total questions loaded:', questions.length);
+  document.getElementById('totalQuestions').textContent = questions.length;
+  updateFavCount();
+}
+
+function updateFavCount() {
+  document.getElementById('favCount').textContent = favorites.size;
+}
+
+// ===== НАВИГАЦИЯ =====
+function showScreen(id) {
+  ['startScreen', 'testScreen', 'resultsScreen'].forEach(s => {
+    document.getElementById(s).style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'block';
+}
+
+function startTest(fromNum) {
+  currentMode = 'all';
+  questionSubset = [...questions];
+  answers = {};
+  answeredInSession = {};
+  lastStartIndex = fromNum;
+  currentIndex = Math.max(0, fromNum - 1);
+  console.log('startTest:', fromNum, '-> idx:', currentIndex, 'total:', questionSubset.length);
+  showScreen('testScreen');
+  renderQuestion();
+}
+
+function startFavTest() {
+  const favQuestions = questions.filter(q => favorites.has(q.id));
+  if (favQuestions.length === 0) {
+    alert('В избранном нет вопросов.');
+    return;
+  }
+  currentMode = 'favorites';
+  questionSubset = favQuestions;
+  answers = {};
+  answeredInSession = {};
+  currentIndex = 0;
+  showScreen('testScreen');
+  renderQuestion();
+}
+
+function showOnlyFavorites() {
+  const favQuestions = questions.filter(q => favorites.has(q.id));
+  if (favQuestions.length === 0) {
+    alert('В избранном нет вопросов.');
+    return;
+  }
+  currentMode = 'favorites';
+  questionSubset = favQuestions;
+  answers = {};
+  answeredInSession = {};
+  currentIndex = 0;
+  showScreen('testScreen');
+  renderQuestion();
+}
+
+function exitTest() {
+  showScreen('startScreen');
+  updateFavCount();
+}
+
+function restartTest() {
+  startTest(lastStartIndex);
+}
+
+// ===== РЕНДЕР ВОПРОСА =====
+function renderQuestion() {
+  console.log('renderQuestion idx:', currentIndex, 'subset:', questionSubset.length);
+  if (questionSubset.length === 0) {
+    showScreen('startScreen');
+    return;
+  }
+  if (currentIndex >= questionSubset.length) {
+    showResults();
+    return;
+  }
+  const q = questionSubset[currentIndex];
+  console.log('Q text:', q.question);
+  const qNumInSubset = currentIndex + 1;
+
+  // Счётчик
+  document.getElementById('qCounter').textContent =
+    `Вопрос ${qNumInSubset} из ${questionSubset.length}`;
+
+  // Прогресс
+  const pct = (qNumInSubset / questionSubset.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // Вопрос
+  document.getElementById('questionText').textContent = q.question;
+
+  // Кнопка избранного
+  const favBtn = document.getElementById('favBtn');
+  favBtn.textContent = favorites.has(q.id) ? '★' : '☆';
+  favBtn.classList.toggle('active', favorites.has(q.id));
+
+  // Варианты
+  const optsList = document.getElementById('optionsList');
+  optsList.innerHTML = '';
+  const answered = answeredInSession[q.id] !== undefined;
+  const selectedOpt = answeredInSession[q.id];
+
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option-btn';
+
+    if (answered) {
+      btn.classList.add('disabled');
+      if (opt.num === q.answer) btn.classList.add('correct');
+      else if (opt.num === selectedOpt && opt.num !== q.answer) btn.classList.add('wrong');
+    }
+
+    btn.innerHTML = `<span class="opt-num">${opt.num}</span><span class="opt-text">${opt.text}</span>`;
+
+    if (!answered) {
+      btn.onclick = () => selectOption(q.id, opt.num);
+    }
+
+    optsList.appendChild(btn);
+  });
+
+  // Пояснение
+  const expBox = document.getElementById('explanationBox');
+  const expText = document.getElementById('explanationText');
+  if (answered && q.explanation) {
+    expText.textContent = q.explanation;
+    expBox.classList.add('visible');
+  } else {
+    expBox.classList.remove('visible');
+  }
+
+  // Кнопки навигации
+  document.getElementById('prevBtn').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
+
+  const isLast = currentIndex >= questionSubset.length - 1;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = isLast ? '✓ Результаты' : 'Далее →';
+}
+
+function selectOption(questionId, optionNum) {
+  answeredInSession[questionId] = optionNum;
+  answers[questionId] = optionNum;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (currentIndex >= questionSubset.length - 1) {
+    showResults();
+  } else {
+    currentIndex++;
+    renderQuestion();
+  }
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion();
+  }
+}
+
+function goToQuestion() {
+  const val = parseInt(document.getElementById('gotoInput').value);
+  if (isNaN(val) || val < 1 || val > questions.length) {
+    alert(`Введите номер от 1 до ${questions.length}`);
+    return;
+  }
+  closeGotoModal();
+  currentMode = 'all';
+  questionSubset = [...questions];
+  answers = {};
+  answeredInSession = {};
+  lastStartIndex = val;
+  currentIndex = val - 1;
+  showScreen('testScreen');
+  renderQuestion();
+}
+
+function openGotoModal() {
+  document.getElementById('gotoModal').classList.add('visible');
+  const inp = document.getElementById('gotoInput');
+  inp.value = '';
+  setTimeout(() => inp.focus(), 100);
+}
+
+function closeGotoModal() {
+  document.getElementById('gotoModal').classList.remove('visible');
+}
+
+// ===== ИЗБРАННОЕ =====
+function toggleFavorite() {
+  const q = questionSubset[currentIndex];
+  if (favorites.has(q.id)) {
+    favorites.delete(q.id);
+  } else {
+    favorites.add(q.id);
+  }
+  localStorage.setItem('medtest_favorites', JSON.stringify([...favorites]));
+  updateFavCount();
+  renderQuestion();
+}
+
+// ===== РЕЗУЛЬТАТЫ =====
+function showResults() {
+  let correct = 0;
+  let wrong = 0;
+
+  questionSubset.forEach(q => {
+    if (answeredInSession[q.id] !== undefined) {
+      if (answeredInSession[q.id] === q.answer) correct++;
+      else wrong++;
+    }
+  });
+
+  const total = questionSubset.length;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  document.getElementById('resultScore').textContent = pct + '%';
+  document.getElementById('resultCorrect').textContent = correct;
+  document.getElementById('resultWrong').textContent = wrong;
+
+  showScreen('resultsScreen');
+}
+
+// ===== ПОИСК =====
+let searchTimeout;
+function handleSearch(query) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => doSearch(query), 300);
+}
+
+function doSearch(query) {
+  const container = document.getElementById('searchResults');
+  const list = document.getElementById('searchList');
+  const title = document.getElementById('searchTitle');
+
+  if (!query || query.length < 2) {
+    container.classList.remove('visible');
+    list.innerHTML = '';
+    return;
+  }
+
+  const q = query.toLowerCase().trim();
+  const results = questions.filter(item => item.question.toLowerCase().includes(q));
+
+  title.textContent = `Найдено: ${results.length}`;
+
+  if (results.length === 0) {
+    list.innerHTML = '<div class="no-results">Ничего не найдено</div>';
+  } else {
+    // Показываем до 50 результатов
+    const toShow = results.slice(0, 50);
+    list.innerHTML = toShow.map(item => {
+      const highlighted = highlightText(item.question, query);
+      return `<div class="search-result-item" onclick="startTest(${item.id + 1})">
+        <div class="sr-num">Вопрос №${item.id + 1}</div>
+        <div class="sr-text">${highlighted}</div>
+      </div>`;
+    }).join('');
+
+    if (results.length > 50) {
+      list.innerHTML += `<div class="no-results">Показано 50 из ${results.length}. Уточните запрос.</div>`;
+    }
+  }
+
+  container.classList.add('visible');
+}
+
+function highlightText(text, query) {
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return escapeHtml(text);
+  const before = escapeHtml(text.substring(0, idx));
+  const match = escapeHtml(text.substring(idx, idx + query.length));
+  const after = escapeHtml(text.substring(idx + query.length));
+  return before + '<span class="highlight">' + match + '</span>' + after;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ===== ЗАКРЫТИЕ МОДАЛКИ ПО КЛИКУ ВНЕ =====
+document.getElementById('gotoModal').addEventListener('click', function(e) {
+  if (e.target === this) closeGotoModal();
+});
+
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+init();
+</script>
+
+</body>
+</html>
