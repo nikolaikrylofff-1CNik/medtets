@@ -894,10 +894,12 @@ function doSearch(query) {
   } else {
     // Показываем до 50 результатов
     const toShow = results.slice(0, 50);
-    list.innerHTML = toShow.map(item => {
+    // Для каждого результата находим его индекс в оригинальном массиве
+    list.innerHTML = toShow.map((item) => {
+      const idx = questions.indexOf(item); // индекс в массиве questions
       const highlighted = highlightText(item.question, query);
-      return `<div class="search-result-item" onclick="startTestFromSearch(${item.id + 1})">
-        <div class="sr-num">Вопрос №${item.id + 1}</div>
+      return `<div class="search-result-item" onclick="startTestFromSearch(${idx + 1})">
+        <div class="sr-num">Вопрос №${item.id}</div>
         <div class="sr-text">${highlighted}</div>
       </div>`;
     }).join('');
