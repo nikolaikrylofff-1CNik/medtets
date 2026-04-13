@@ -706,6 +706,16 @@ function restartTest() {
   startTest(lastStartIndex);
 }
 
+// ===== ВСПОМОГАТЕЛЬНЫЕ =====
+function shuffleArray(arr) {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 // ===== РЕНДЕР ВОПРОСА =====
 function renderQuestion() {
   console.log('renderQuestion idx:', currentIndex, 'subset:', questionSubset.length);
@@ -737,13 +747,16 @@ function renderQuestion() {
   favBtn.textContent = favorites.has(q.id) ? '★' : '☆';
   favBtn.classList.toggle('active', favorites.has(q.id));
 
-  // Варианты
+  // Варианты (перемешанные)
   const optsList = document.getElementById('optionsList');
   optsList.innerHTML = '';
   const answered = answeredInSession[q.id] !== undefined;
   const selectedOpt = answeredInSession[q.id];
 
-  q.options.forEach(opt => {
+  // Перемешиваем варианты (сохраняем порядок для повторных показов)
+  const displayOptions = q._shuffledOptions || (q._shuffledOptions = shuffleArray(q.options));
+
+  displayOptions.forEach((opt, idx) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'option-btn';
@@ -754,7 +767,7 @@ function renderQuestion() {
       else if (opt.num === selectedOpt && opt.num !== q.answer) btn.classList.add('wrong');
     }
 
-    btn.innerHTML = `<span class="opt-num">${opt.num}</span><span class="opt-text">${opt.text}</span>`;
+    btn.innerHTML = `<span class="opt-num">${idx + 1}</span><span class="opt-text">${opt.text}</span>`;
 
     if (!answered) {
       btn.onclick = () => selectOption(q.id, opt.num);
